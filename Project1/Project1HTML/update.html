@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>修改页面</h2>
+    <p>姓名：<input type="text" id="names"></p>
+    <p>年龄：<input type="text" id="age"></p>
+    <p>入职时间：<input type="date" id="in_time"></p>
+    <p>部门：<input type="text" id="type"></p>
+    <button onclick="update()">修改</button>
+    <script src="./axios.js"></script>
+    <script src="./day.js"></script>
+    <script>
+        function update() {
+            axios.patch(`http://127.0.0.1:8000/all/${location.search}`, {
+                name: names.value,
+                age: age.value,
+                in_time: in_time.value,
+                type: type.value,
+            }).then(res => {
+                if (res.data.code == 200) {
+                    alert("修改成功")
+                    window.open("index.html")
+                }
+            })
+        }
+
+        function getData(){
+            axios.get(`http://127.0.0.1:8000/huixian/${location.search}`).then(res=>{
+                console.log(res)
+                
+                let data = res.data.data
+                names.value = data.name
+                age.value = data.age
+                in_time.value = data.in_time
+                type.value = data.type
+            })
+        }
+        getData()
+    </script>
+</body>
+</html>

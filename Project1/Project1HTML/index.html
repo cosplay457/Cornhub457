@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+
+        }
+
+        a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        .header {
+            background-color: #8a2be2;
+        }
+        .content {
+            background-color: #8a2be2;
+            width: 800px;
+            text-align: center;
+            margin: 0 200px;
+        }
+        .add {
+            background-color: red;
+            border: solid 1px;
+            width: 70px;
+            height: 30px;
+        }
+
+        .search {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 30px;
+            height: 50px;
+            
+        }
+        .active{
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2>OA管理系统</h2>
+        <span>部门类型</span>
+        <span>员工列表</span>
+    </div>
+    <div class="search">
+        <a href="add.html" class="add">添加员工</a>
+        <div>
+            <input type="text" id="names">
+            <input type="text" id="type">
+            <button onclick="search()">搜索</button>
+        </div>
+        
+    </div>
+    <table class="content">
+        <thead>
+            <tr>
+                <td>序号</td>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>入职时间</td>
+                <td>部门</td>
+                <td>操作</td>
+            </tr>
+
+
+
+        </thead>
+        
+        <tbody id="tbody">
+
+        </tbody>
+    </table>
+    <div id="pagenum">
+
+    </div>
+    <script src="./axios.js"></script>
+    <script src="./day.js"></script>
+<script>
+    function fenye(pages){
+        let str = ""
+        
+        if(pages.cur > 1){
+            str+=`<button onclick="render(${pages.prev})" >上一页<button>`
+        }
+        pages.range.forEach(item => {
+            str += `<button onclick="render(${item})" class=${pages.cur==item?"active":""}>${item}<button>`
+        })
+        if (pages.cur < pages.max) {
+            str += `<button onclick="render(${pages.next})" >下一页<button>`
+        }
+        pagenum.innerHTML=str
+    }
+    function search(){
+        render(1,names.value,type.value)
+    }
+    function render(page=1, names = "", type = ""){
+        xios.get(`http://127.0.0.1:8000/all/?page=${page}&name=${names}&type=${type}`).then(res=>{
+            console.log(res.data);
+            
+            tbody.innerHTML = res.data.data.map(item=>{
+                return`<tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.age}</td>
+                    <td>${item.in_time}</td>
+                    <td>${item.type}</td>
+                    <td>
+                        <a href="update.html?id=${item.id}">修改</a>
+                        <a onclick="del(${item.id})">删除</a>
+                    </td>
+                </tr>`
+
+            }).join("")
+            fenye(res.data.page) 
+        })
+    }
+    render(2)
+    function del(id){
+        flag=confirm('确定要删除吗')
+        if (flag){
+            axios.delete(`http://127.0.0.1:8000/all/?id=${id}`).then(res=>{
+                if (res.data.code==200){
+                    alert('删除成功')
+                    render()
+                }
+            })
+        }
+    }
+        
+</script>
+</body>
+
+</html>

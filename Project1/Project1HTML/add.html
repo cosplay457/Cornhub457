@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>添加页面</h2>
+    <p>姓名：<input type="text" id="names"></p>
+    <p>年龄：<input type="text" id="age"></p>
+    <p>入职时间：<input type="date" id="in_time"></p>
+    <p>部门：<input type="text" id="type"></p>
+    <button onclick="add()">添加员工</button>
+<script src="./axios.js"></script>   
+<script>
+    function add(){
+        axios.post(`http://127.0.0.1:8000/all/`,{
+            name:names.value,
+            age:age.value,
+            in_time:in_time.value,
+            type:type.value,
+        }).then(res=>{
+            if (res.data.code==200){
+                alert("添加成功")
+                window.open("index.html")
+            }
+        })
+    }
+</script>
+</body>
+</html>
