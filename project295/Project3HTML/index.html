@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+
+        }
+
+        .search {
+            display: flex;
+            justify-content: space-between;
+
+            margin: 50px 10px;
+            height: 50px;
+            line-height: 50px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        #pagenum {
+            text-align: center;
+        }
+
+        。actives {
+            color: red;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+
+            width: 50px;
+            border-bottom: none;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            color: red;
+            background: white;
+            font-weight: bold;
+            border-bottom: 1px solid white;
+        }
+
+        .content {
+
+
+            height: 400px;
+            text-align: center;
+            margin: 20px auto;
+        }
+
+        .add {
+            width: 70px;
+            height: 30px;
+            border-radius: 10px;
+        }
+
+
+
+        #moviecontent {
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            display: flex;
+            text-align: center;
+            width: 1200px;
+            height: 400px;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        #types {
+            display: flex;
+            margin: 0 0 10px 170px;
+        }
+
+        .content dl {
+            position: relative;
+        }
+
+        .btn {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2>电影管理系统</h2>
+    </div>
+    <div class="search">
+        <div>
+            <button><a href="add.html" class="add">添加电影</a></button>
+            <button><a href="addtype.html" class="add">添加电影类型</a></button>
+        </div>
+        <div>
+            <input type="text" id="names">
+            <button onclick="search()">搜索</button>
+        </div>
+
+    </div>
+    <div id="types">
+        <!-- <h2 >电影地区</h2>
+        <div class="tab active" data-tab="tab1" value="1">华语</div>
+        <div  class="tab " data-tab="tab2" value="2">欧美</div>
+        <div class="tab " data-tab="tab3" value="3">韩国</div>
+        <div class="tab " data-tab="tab4" value="4">日本</div> -->
+    </div>
+    <div id="moviecontent">
+
+    </div>
+    <div id="pagenum">
+
+    </div>
+    <script src="./axios.js"></script>
+    <script>
+        
+        function fenye(pages) {
+            let str = ""
+            if (pages.cur > 1) {
+                str += `<button onclick="menu(${pages.prev}, '${names.value}')">上一页</button>`
+            }
+            pages.range.forEach(item => {
+                str += `<button class='${pages.cur == item ? "actives" : ""}' onclick="menu(${item}, '${names.value}')">${item}</button>`
+            })
+            if (pages.cur < pages.max) {
+                console.log(types.value)
+                str += `<button onclick="menu(${pages.next}, '${names.value}')">下一页</button>`
+            }
+            pagenum.innerHTML = str
+        }
+        /*HUAYU 日本的数据*/
+
+        function typemenu() {
+            axios.get('http://127.0.0.1:8000/types/').then(res => {
+                types.innerHTML = res.data.data.map(item => {
+                    return `
+                    <div class="tab" onclick='cc(${item.id})'>${item.name}</div>`
+                }).join('')
+            })
+        }
+        function cc(s) {
+            console.log(s)
+            const tabs =[...document.querySelectorAll('.tab')]
+                  
+            tabs.forEach(t => t.classList.remove('active'));
+            tabs[s - 1].classList.add('active');
+  
+            menu(page = 1, name = '', type = s)
+        }
+        function menu(page = 1, name = '', type = '') {
+            axios.get(`http://127.0.0.1:8000/movies/?page=${page}&name=${name}&type=${type}`).then(res => {
+                moviecontent.innerHTML = res.data.data.map(item => {
+                    return `<div class="content">
+                        <dl>
+                        <dt class="pro-img">
+                            <a  href="detail.html?id=${item.id}"><img src="./images/${item.id}.png" alt="${item.name}"></a>
+                        </dt>
+                        <dd>${item.name}</dd>
+                        <div class="btn" >
+                            <button><a href="update.html?id=${item.id}">修改</a></button>
+                            <button onclick="del(${item.id})">删除</button>   
+                        </div>
+                    </dl></div>`
+                }).join("")
+                fenye(res.data.page)
+                let Images = [...document.getElementsByClassName("pro-img")]
+                let btn = [...document.getElementsByClassName("btn")]
+                Images.forEach((img, i) => {
+                    img.onmouseover = function () {
+                        btn[i].style.display = 'inline-block';
+
+                    };
+                    btn[i].onmouseover = function () {
+                        btn[i].style.display = 'inline-block';
+
+                    };
+                    img.onmouseout = function () {
+                        btn[i].style.display = 'none';
+
+                    };
+                })
+            })
+        }
+        function render() {
+            menu()
+            typemenu()
+        }
+        render()
+        function search() {
+            menu(1, names.value)
+        }
+        function del(id) {
+            flag = confirm("确定删除吗")
+            if (flag) {
+                axios.delete(`http://127.0.0.1:8000/movies/?id=${id}`).then(res => {
+                    if (res.data.code == 200) {
+                        alert("删除成功")
+                        render()
+                    }
+                })
+            }
+        }
+    </script>
+</body>
+
+</html>

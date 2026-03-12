@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h2>添加类型页面</h2>
+    <p>类型名称：<input type="text" id="names"></p>
+    <button onclick="add()">添加电影类型</button>
+    <script src="./axios.js"></script>
+    <script>
+        function add() {
+            axios.post(`http://127.0.0.1:8000/types/`, {
+                name: names.value
+            }).then(res => {
+                if (res.data.code == 200) {
+                    alert("添加类型成功")
+                    window.open("index.html")
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>
